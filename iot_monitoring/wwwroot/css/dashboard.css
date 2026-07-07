@@ -1,0 +1,31 @@
+﻿body {
+    background : #f5f7fa
+}
+
+.sldebar {
+    background : white;
+    min-height : 100vh;
+    border-right: 1px solid #ddd;
+}
+
+.sldebar .nave-link{
+    color: #333;
+    font-weight = 500;
+    margin-bottom = 8px;
+}
+
+.sldebar .nave-link:hober{
+    background :#0d6efd;
+    color: white;
+    border-radius = 8px;
+}
+
+.sensor-card{
+    border: none;
+    border-radius : 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.sensor-card .card-body{
+    padding:24px;
+}
