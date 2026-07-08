@@ -68,7 +68,7 @@
                         <div class="card sensor-card">
                             <div class="card-body">
                                 <h6 class="text-muted"> Temperature </h6>
-                                <h3 class="fw-bold ">28.3 °C</h3>
+                                <h3 class="fw-bold" id ="temperatureValue">-- °C</h3>
                                 <small class="text-success">Normal</small>
                             </div>
                         </div>
@@ -78,17 +78,7 @@
                         <div class="card sensor-card">
                             <div class="card-body">
                                 <h6 class="text-muted"> Humidity </h6>
-                                <h3 class="fw-bold ">65 %</h3>
-                                <small class="text-success">Normal</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="card sensor-card">
-                            <div class="card-body">
-                                <h6 class="text-muted"> Temperature </h6>
-                                <h3 class="fw-bold ">28.3 °C</h3>
+                                <h3 class="fw-bold " id="humidityValue">-- %</h3>
                                 <small class="text-success">Normal</small>
                             </div>
                         </div>
@@ -98,7 +88,7 @@
                         <div class="card sensor-card">
                             <div class="card-body">
                                 <h6 class="text-muted"> Soil Moisture </h6>
-                                <h3 class="fw-bold ">42 %</h3>
+                                <h3 class="fw-bold " id="soilValue">-- %</h3>
                                 <small class="text-success">Low</small>
                             </div>
                         </div>
@@ -108,16 +98,27 @@
                         <div class="card sensor-card">
                             <div class="card-body">
                                 <h6 class="text-muted"> Device Status </h6>
-                                <h3 class="fw-bold ">Online</h3>
+                                <h3 class="fw-bold " id="statusValue">--</h3>
                                 <small class="text-success">Normal</small>
                             </div>
 
                         </div>
                     </div>
                 </div>
+
+                <div class="card chart-card mt-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">
+                            Sensor Trend
+                        </h5>
+                        <canvas id="sensorChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
 </body>
 </html>
 

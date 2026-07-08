@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("iot_monitoring")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+09122973eb4e1ab768beccba2d62feef2273e85f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9108319f2eafbb208842825171cfb17669b108f2")]
 [assembly: System.Reflection.AssemblyProductAttribute("iot_monitoring")]
 [assembly: System.Reflection.AssemblyTitleAttribute("iot_monitoring")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
