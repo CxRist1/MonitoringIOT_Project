@@ -37,8 +37,14 @@
                         </p>
 
                         <hr />
+                        @if(ViewBag.ErrorMessage != null)
+                            {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewBag.ErrorMessage
+                            </div>
+                            }
 
-                        <form>
+                        <form asp-controller="Account" asp-action="Login" method="post">
 
                             <!-- Username -->
 
@@ -49,6 +55,7 @@
                                 </label>
 
                                 <input type="text"
+                                    name="Username"
                                        class="form-control"
                                        placeholder="Enter username">
 
@@ -63,6 +70,7 @@
                                 </label>
 
                                 <input type="password"
+                                    name="password"
                                        class="form-control"
                                        id="passwordInput"
                                        placeholder="Enter password">
@@ -73,6 +81,8 @@
 
                                 <input class="form-check-input"
                                        type="checkbox"
+                                       name="RememberMe"
+                                       value="true"
                                        id="remember">
 
                                 <label class="form-check-label"
