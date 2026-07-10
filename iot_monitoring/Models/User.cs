@@ -13,6 +13,6 @@ namespace iot_monitoring.Models
         public string Role { get; set; } = "User";
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

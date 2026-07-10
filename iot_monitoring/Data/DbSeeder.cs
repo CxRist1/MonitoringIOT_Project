@@ -18,7 +18,7 @@ namespace iot_monitoring.Data
                 Email = "admin@iot.local",
                 Role = "Admin",
                 IsActive = true,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
             };
             context.Users.Add(admin);
             context.SaveChanges();
