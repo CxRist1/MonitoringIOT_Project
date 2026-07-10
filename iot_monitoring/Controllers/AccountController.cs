@@ -91,6 +91,11 @@ namespace iot_monitoring.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -1,0 +1,59 @@
+[33mcommit f9f016411008d01445b42e9e8df01578159ce62f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Fri Jul 10 15:01:41 2026 +0700
+
+    debuging Login page
+
+[33mcommit eeeb7dbb78b31e07dd3d379e7a7374d32b65c97a[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Fri Jul 10 14:15:46 2026 +0700
+
+    Increase feature sigin
+
+[33mcommit fc57bef4a5df602bf3148ee0090ca131797e1ecf[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Fri Jul 10 10:56:58 2026 +0700
+
+    Increase logout feature complete
+
+[33mcommit 50f6e60131f298a14ed7430606e5c387d0f97a4c[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Fri Jul 10 09:41:22 2026 +0700
+
+    Switch to postgresql
+
+[33mcommit 34c4be4848cafd2a9c0f2ae5af0be0924b96753a[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Thu Jul 9 16:49:03 2026 +0700
+
+    Increase selection device v2
+
+[33mcommit 05061e66ccae70d1b32f051958a9df2c6991b803[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Thu Jul 9 16:32:26 2026 +0700
+
+    Increase select Device page
+
+[33mcommit 9e74d9639f2ffc1c66aef56338fcdad070bba3b7[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Thu Jul 9 11:55:54 2026 +0700
+
+    feat: implement EF Core with SQL Server and admin seeding
+
+[33mcommit 16e04a7e43503098aa4f9e3683b60923ce44897f[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Thu Jul 9 11:51:17 2026 +0700
+
+    Remove bin and obj folders and add .gitignore
+
+[33mcommit 859c5e6fb7af2dfb601546db8ea140f571e13db7[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Wed Jul 8 14:05:04 2026 +0700
+
+    Chart
+
+[33mcommit 9108319f2eafbb208842825171cfb17669b108f2[m
+Author: cxrist <hamoues12@gmail.com>
+Date:   Tue Jul 7 19:24:29 2026 +0700
+
+    Dashboard V1
