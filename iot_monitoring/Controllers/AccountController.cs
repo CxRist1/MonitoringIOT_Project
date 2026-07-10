@@ -2,6 +2,8 @@
 using iot_monitoring.Services;
 using iot_monitoring.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
 
 namespace iot_monitoring.Controllers
@@ -22,6 +24,7 @@ namespace iot_monitoring.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public IActionResult Login(LoginViewModel model)
         {
@@ -44,6 +47,15 @@ namespace iot_monitoring.Controllers
             }
             return RedirectToAction("Index", "Devices");
 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Login", "Account");
         }
     }
 }

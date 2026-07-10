@@ -3,13 +3,13 @@
     ViewData["Title"] = "Devices Center";
 }
 
-<div class="container met-4">
-    <div>
+<div class="container met-4 border border-50-dark rounded-2 mb-3">
+    <div class="align-items-center">
         <h2 class="fw-bold md-1">Device Center</h2>
         <p class=" text-muted mb-0">Select a device to viewmonitoring dashboard</p>
     </div>
 
-    <button type ="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target = "#addDeviceModal">
+    <button type ="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target = "#addDeviceModal">
         + Add Device
     </button>
 </div>
@@ -18,7 +18,7 @@
     @foreach (var device in Model)
     {
         <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm border-50 h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-lg-start mb-3">
                         <div>
@@ -35,7 +35,7 @@
                         }
                         else
                         {
-                            <span class="badge bg-danger">Offline</span>
+                            <span class="badge bg-secondary">Offline</span>
                         }
                     </div>
                     <hr />
