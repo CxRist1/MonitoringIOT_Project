@@ -1,10 +1,13 @@
 ﻿using iot_monitoring.Data;
 using iot_monitoring.Services;
 using iot_monitoring.ViewModel;
+using iot_monitoring.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
+using iot_monitoring.ViewModels;
 
 namespace iot_monitoring.Controllers
 {
@@ -57,5 +60,50 @@ namespace iot_monitoring.Controllers
 
             return RedirectToAction("Login", "Account");
         }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var usernameExists = await _context.Users.AnyAsync(u => u.Username == model.Username);
+
+            if (usernameExists)
+            {
+                ModelState.AddModelError("Username", "Username already exists.");
+                return View(model);
+            }
+
+            var emailExists = await _context.Users.AnyAsync(u => u.Email == model.Email);
+            if (emailExists)
+            {
+                ModelState.AddModelError("Email", "Email already exists.");
+                return View(model);
+            }
+            var user = new User
+            {
+                Username = model.Username,
+                FullName = model.FullName,
+                Email = model.Email,
+                Password = _passwordService.HashPassword(model.Password),
+                Role = "User",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Login", "Account");
+
+        }
+
     }
 }

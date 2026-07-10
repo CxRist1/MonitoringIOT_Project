@@ -2,9 +2,11 @@
 using iot_monitoring.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace iot_monitoring.Controllers
 {
+	[Authorize]
 	public class DevicesController : Controller
 	{
 		private readonly AppDbContext _context;

@@ -17,8 +17,20 @@
 </head>
 
 <body>
+    <div class="position-absolute top-0 end-0 p-3 mb-2">
+        <a  asp-controller="Account"
+            asp-action="Loging"
+            class="btn btn-outline-primary me-2">
+         Sign In
+        </a>
 
-    <div class="container">
+        <a asp-controller="Account"
+           asp-action="Register"
+           class="btn btn-primary">
+           Sign Up
+       </a>
+    </div>
+    <div class="container" style="margin-top : 100px;">
 
         <div class="row justify-content-center">
 
@@ -98,7 +110,7 @@
 
                                 <button type="submit"
                                         class="btn btn-primary">
-
+                                           
                                     Login
 
                                 </button>
