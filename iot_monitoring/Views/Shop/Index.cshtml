@@ -13,7 +13,19 @@
             </p>
         </div>
     </div>
+    @if (TempData["CartSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["CartSuccess"]
+        </div>
+    }
 
+    @if (TempData["CartError"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["CartError"]
+        </div>
+    }
     @if (!Model.Any())
     {
         <div class="alert alert-info">
@@ -92,10 +104,32 @@
                                                name="productId"
                                                value="@product.Id" />
 
-                                        <button type="submit"
-                                                class="btn btn-primary w-100">
-                                            Add to Cart
-                                        </button>
+                                        @if (product.Stock > 0)
+                                        {
+                                            <form asp-controller="Shop"
+                                                  asp-action="AddToCart"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="productId"
+                                                       value="@product.Id" />
+
+                                                <button type="submit"
+                                                        class="btn btn-primary w-100">
+                                                    Add to Cart
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-secondary w-100"
+                                                    disabled>
+                                                Out of Stock
+                                            </button>
+                                        }
                                     </form>
                                 }
                                 else

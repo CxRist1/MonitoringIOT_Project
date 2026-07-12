@@ -33,17 +33,14 @@ namespace iot_monitoring.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int productId)
         {
-            // อ่าน User Id จาก Cookie Authentication
-            var userIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            );
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!int.TryParse(userIdClaim, out int userId))
+            if (!int.TryParse(userIdValue, out int userId))
             {
                 return Challenge();
             }
 
-            // ตรวจว่าสินค้ามีจริงและยังเปิดขายอยู่
             var product = await _context.Products
                 .FirstOrDefaultAsync(p =>
                     p.Id == productId &&
@@ -54,19 +51,17 @@ namespace iot_monitoring.Controllers
                 return NotFound();
             }
 
-            // สินค้าหมด ไม่อนุญาตให้เพิ่มลง Cart
             if (product.Stock <= 0)
             {
-                TempData["CartError"] = "This product is out of stock.";
+                TempData["CartError"] =
+                    "Product is out of stock.";
 
                 return RedirectToAction(nameof(Index));
             }
 
-            // หา Cart ของ User
             var cart = await _context.Carts
                 .FirstOrDefaultAsync(c => c.UserId == userId);
 
-            // ถ้ายังไม่มี Cart ให้สร้างใหม่
             if (cart == null)
             {
                 cart = new Cart
@@ -76,25 +71,20 @@ namespace iot_monitoring.Controllers
                 };
 
                 _context.Carts.Add(cart);
+
+                await _context.SaveChangesAsync();
             }
 
-            CartItem? cartItem = null;
-
-            // Cart ใหม่ยังไม่มี Id จนกว่าจะ Save
-            if (cart.Id != 0)
-            {
-                cartItem = await _context.CartItems
-                    .FirstOrDefaultAsync(ci =>
-                        ci.CartId == cart.Id &&
-                        ci.ProductId == productId);
-            }
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci =>
+                    ci.CartId == cart.Id &&
+                    ci.ProductId == productId);
 
             if (cartItem == null)
             {
-                // สินค้ายังไม่มีใน Cart
                 cartItem = new CartItem
                 {
-                    Cart = cart,
+                    CartId = cart.Id,
                     ProductId = productId,
                     Quantity = 1
                 };
@@ -103,11 +93,10 @@ namespace iot_monitoring.Controllers
             }
             else
             {
-                // ป้องกันจำนวนใน Cart เกิน Stock
                 if (cartItem.Quantity >= product.Stock)
                 {
                     TempData["CartError"] =
-                        "You cannot add more than the available stock.";
+                        "Quantity cannot exceed available stock.";
 
                     return RedirectToAction(nameof(Index));
                 }
@@ -118,7 +107,7 @@ namespace iot_monitoring.Controllers
             await _context.SaveChangesAsync();
 
             TempData["CartSuccess"] =
-                $"{product.Name} was added to your cart.";
+                $"{product.Name} added to your cart.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -126,11 +115,10 @@ namespace iot_monitoring.Controllers
         [HttpGet]
         public async Task<IActionResult> Cart()
         {
-            var userIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            );
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!int.TryParse(userIdClaim, out int userId))
+            if (!int.TryParse(userIdValue, out int userId))
             {
                 return Challenge();
             }
