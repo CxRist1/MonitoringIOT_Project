@@ -1,0 +1,117 @@
+﻿@model IEnumerable<iot_monitoring.Models.Product>
+
+@{
+    ViewData["Title"] = "Device Store";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Device Store</h1>
+            <p class="text-muted mb-0">
+                IoT devices, sensors and accessories
+            </p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No products are available yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var product in Model)
+            {
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 shadow-sm">
+
+                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl"
+                                 class="card-img-top"
+                                 alt="@product.Name"
+                                 style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center bg-light"
+                                 style="height: 200px;">
+                                <span class="text-muted">
+                                    No Image
+                                </span>
+                            </div>
+                        }
+
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-secondary align-self-start mb-2">
+                                @(product.Category ?? "Uncategorized")
+                            </span>
+
+                            <h5 class="card-title">
+                                @product.Name
+                            </h5>
+
+                            <p class="card-text text-muted">
+                                @(string.IsNullOrWhiteSpace(product.Description)
+                                    ? "No description available."
+                                    : product.Description)
+                            </p>
+
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <strong class="fs-5">
+                                        ฿@product.Price.ToString("N2")
+                                    </strong>
+
+                                    @if (product.Stock > 0)
+                                    {
+                                        <span class="text-success">
+                                            In stock: @product.Stock
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            Out of stock
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (product.Stock > 0)
+                                {
+                                    <form asp-controller="Shop"
+                                          asp-action="AddToCart"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@product.Id" />
+
+                                        <button type="submit"
+                                                class="btn btn-primary w-100">
+                                            Add to Cart
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button type="button"
+                                            class="btn btn-secondary w-100"
+                                            disabled>
+                                        Out of Stock
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
