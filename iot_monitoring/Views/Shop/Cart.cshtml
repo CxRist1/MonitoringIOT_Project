@@ -25,6 +25,19 @@
             Continue Shopping
         </a>
     </div>
+    @if (TempData["CartSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["CartSuccess"]
+        </div>
+    }
+
+    @if (TempData["CartError"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["CartError"]
+        </div>
+    }
 
     @if (!cartItems.Any())
     {
@@ -43,6 +56,7 @@
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
                             <th class="text-end">Subtotal</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
 
@@ -98,11 +112,67 @@
                                 </td>
 
                                 <td class="text-center">
-                                    @item.Quantity
+                                    <div class="d-inline-flex align-items-center gap-2">
+
+                                        <form asp-controller="Shop"
+                                              asp-action="DecreaseQuantity"
+                                              method="post"
+                                              class="d-inline">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="cartItemId"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm">
+                                                -
+                                            </button>
+                                        </form>
+
+                                        <span class="fw-semibold">
+                                            @item.Quantity
+                                        </span>
+
+                                        <form asp-controller="Shop"
+                                              asp-action="IncreaseQuantity"
+                                              method="post"
+                                              class="d-inline">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="cartItemId"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    disabled="@(item.Quantity >= item.Product.Stock)">
+                                                +
+                                            </button>
+                                        </form>
+
+                                    </div>
                                 </td>
 
-                                <td class="text-end fw-semibold">
-                                    ฿@subtotal.ToString("N2")
+                                <td class="text-center">
+                                    <form asp-controller="Shop"
+                                          asp-action="RemoveFromCart"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="cartItemId"
+                                               value="@item.Id" />
+
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm">
+                                            Remove
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         }
@@ -110,7 +180,7 @@
 
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="3"
+                            <td colspan="4"
                                 class="text-end fw-bold">
                                 Total
                             </td>

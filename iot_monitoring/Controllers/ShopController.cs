@@ -112,6 +112,115 @@ namespace iot_monitoring.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IncreaseQuantity(int cartItemId)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .Include(ci => ci.Product)
+                .FirstOrDefaultAsync(ci =>
+                    ci.Id == cartItemId &&
+                    ci.Cart.UserId == userId);
+
+            if (cartItem == null)
+            {
+                return NotFound();
+            }
+
+            if (cartItem.Quantity >= cartItem.Product.Stock)
+            {
+                TempData["CartError"] =
+                    "Quantity cannot exceed available stock.";
+
+                return RedirectToAction(nameof(Cart));
+            }
+
+            cartItem.Quantity++;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Cart));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DecreaseQuantity(int cartItemId)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .FirstOrDefaultAsync(ci =>
+                    ci.Id == cartItemId &&
+                    ci.Cart.UserId == userId);
+
+            if (cartItem == null)
+            {
+                return NotFound();
+            }
+
+            if (cartItem.Quantity > 1)
+            {
+                cartItem.Quantity--;
+            }
+            else
+            {
+                _context.CartItems.Remove(cartItem);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Cart));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromCart(int cartItemId)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .FirstOrDefaultAsync(ci =>
+                    ci.Id == cartItemId &&
+                    ci.Cart.UserId == userId);
+
+            if (cartItem == null)
+            {
+                return NotFound();
+            }
+
+            _context.CartItems.Remove(cartItem);
+
+            await _context.SaveChangesAsync();
+
+            TempData["CartSuccess"] =
+                "Product removed from your cart.";
+
+            return RedirectToAction(nameof(Cart));
+        }
+
         [HttpGet]
         public async Task<IActionResult> Cart()
         {
