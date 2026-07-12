@@ -1,0 +1,127 @@
+﻿@model iot_monitoring.Models.Cart?
+
+@{
+    ViewData["Title"] = "My Cart";
+
+    var cartItems = Model?.CartItems
+        ?? new List<iot_monitoring.Models.CartItem>();
+
+    var totalPrice = cartItems.Sum(item =>
+        item.Product.Price * item.Quantity);
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">My Cart</h2>
+            <p class="text-muted mb-0">
+                Review the products in your cart
+            </p>
+        </div>
+
+        <a asp-controller="Shop"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            Continue Shopping
+        </a>
+    </div>
+
+    @if (!cartItems.Any())
+    {
+        <div class="alert alert-info">
+            Your cart is empty.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in cartItems)
+                        {
+                            var subtotal =
+                                item.Product.Price * item.Quantity;
+
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            item.Product.ImageUrl))
+                                        {
+                                            <img src="@item.Product.ImageUrl"
+                                                 alt="@item.Product.Name"
+                                                 class="rounded"
+                                                 style="width: 64px;
+                                            height: 64px;
+                                            object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded
+                                                d-flex align-items-center
+                                                justify-content-center"
+                                                 style="width: 64px;
+                                                height: 64px;">
+                                                <span class="text-muted small">
+                                                    No Image
+                                                </span>
+                                            </div>
+                                        }
+
+                                        <div>
+                                            <strong>
+                                                @item.Product.Name
+                                            </strong>
+
+                                            <div class="text-muted small">
+                                                @(item.Product.Category
+                                                    ?? "Uncategorized")
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <td class="text-end">
+                                    ฿@item.Product.Price.ToString("N2")
+                                </td>
+
+                                <td class="text-center">
+                                    @item.Quantity
+                                </td>
+
+                                <td class="text-end fw-semibold">
+                                    ฿@subtotal.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3"
+                                class="text-end fw-bold">
+                                Total
+                            </td>
+
+                            <td class="text-end fw-bold fs-5">
+                                ฿@totalPrice.ToString("N2")
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    }
+</div>
