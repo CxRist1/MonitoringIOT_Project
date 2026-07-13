@@ -129,5 +129,58 @@ namespace iot_monitoring.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            if (!product.IsActive)
+            {
+                TempData["ErrorMessage"] =
+                    "This product is already inactive.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            product.IsActive = false;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Product removed from the store successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if(product == null)
+            {
+                return NotFound();
+            }
+            if (product.IsActive)
+            {
+                TempData["ErrorMessage"] =
+                    "This product is already active.";
+                return RedirectToAction(nameof(Index));
+            }
+            product.IsActive = true;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] =
+                "Product restored successfully";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
