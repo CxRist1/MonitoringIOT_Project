@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace iot_monitoring.Controllers
 {
@@ -96,6 +97,112 @@ namespace iot_monitoring.Controllers
         public IActionResult ForgotPassword()
         {
             return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(
+    ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var normalizedEmail = model.Email.Trim().ToLower();
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.Email.ToLower() == normalizedEmail &&
+                    u.IsActive);
+
+            if (user == null)
+            {
+                TempData["ForgotPasswordMessage"] =
+                    "If the email exists, a reset link has been created.";
+
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            var tokenBytes = RandomNumberGenerator.GetBytes(32);
+            var token = Convert.ToHexString(tokenBytes);
+
+            user.ResetPasswordToken = token;
+            user.ResetPasswordTokenExpiresAt =
+                DateTime.UtcNow.AddMinutes(30);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                nameof(ResetPassword),
+                new { token });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return BadRequest();
+            }
+
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                    u.ResetPasswordToken == token &&
+                    u.ResetPasswordTokenExpiresAt > DateTime.UtcNow &&
+                    u.IsActive);
+
+            if (user == null)
+            {
+                TempData["ResetPasswordError"] =
+                    "The reset link is invalid or has expired.";
+
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Token = token
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(
+    ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.ResetPasswordToken == model.Token &&
+                    u.ResetPasswordTokenExpiresAt > DateTime.UtcNow &&
+                    u.IsActive);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "The reset link is invalid or has expired.");
+
+                return View(model);
+            }
+
+            user.Password =
+                _passwordService.HashPassword(model.Password);
+
+            user.ResetPasswordToken = null;
+            user.ResetPasswordTokenExpiresAt = null;
+
+            await _context.SaveChangesAsync();
+
+            TempData["LoginSuccessMessage"] =
+                "Password reset successfully. Please sign in.";
+
+            return RedirectToAction(nameof(Login));
         }
 
         [HttpPost]

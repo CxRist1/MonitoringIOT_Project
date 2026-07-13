@@ -53,6 +53,13 @@
                             </div>
                             }
 
+                        @if (TempData["LoginSuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @TempData["LoginSuccessMessage"]
+                            </div>
+                        }
+
                         <form asp-controller="Account" asp-action="Login" method="post">
 
                             <!-- Username -->

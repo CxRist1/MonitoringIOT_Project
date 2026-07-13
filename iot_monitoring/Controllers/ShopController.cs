@@ -28,6 +28,128 @@ namespace iot_monitoring.Controllers
 
             return View(products);
         }
+        [HttpGet]
+        public async Task<IActionResult> OrderSuccess(int orderId)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var orders = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o =>
+                    o.Id == orderId &&
+                    o.UserId == userId);
+
+            if (orders == null)
+            {
+                return NotFound();
+            }
+
+            return View(orders);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPurchase()
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var cart = await _context.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart == null || !cart.CartItems.Any())
+            {
+                TempData["CartError"] = "Your cart is empty.";
+
+                return RedirectToAction(nameof(Cart));
+            }
+
+            foreach (var item in cart.CartItems)
+            {
+                if (!item.Product.IsActive)
+                {
+                    TempData["CartError"] =
+                        $"{item.Product.Name} is no longer available.";
+
+                    return RedirectToAction(nameof(Cart));
+                }
+
+                if (item.Quantity > item.Product.Stock)
+                {
+                    TempData["CartError"] =
+                        $"Not enough stock for {item.Product.Name}.";
+
+                    return RedirectToAction(nameof(Cart));
+                }
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var orders = new Order
+                {
+                    UserId = userId,
+                    Status = "Completed",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                foreach (var cartItem in cart.CartItems)
+                {
+                    var subtotal =
+                        cartItem.Product.Price * cartItem.Quantity;
+
+                    orders.OrderItems.Add(new OrderItem
+                    {
+                        ProductId = cartItem.ProductId,
+                        Quantity = cartItem.Quantity,
+                        UnitPrice = cartItem.Product.Price,
+                        Subtotal = subtotal
+                    });
+
+                    cartItem.Product.Stock -= cartItem.Quantity;
+                }
+
+                orders.TotalAmount = orders.OrderItems
+                    .Sum(item => item.Subtotal);
+
+                _context.Orders.Add(orders);
+
+                _context.CartItems.RemoveRange(cart.CartItems);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return RedirectToAction(
+                    nameof(OrderSuccess),
+                    new { orderId = orders.Id });
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+
+                TempData["CartError"] =
+    "Purchase could not be completed. Please try again.";
+
+                return RedirectToAction(nameof(Cart));
+            }
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -111,6 +233,7 @@ namespace iot_monitoring.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
