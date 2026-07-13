@@ -57,7 +57,75 @@ namespace iot_monitoring.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Product created successfully.";
+            TempData["SuccessMessage"] =
+                "Product created successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var product = await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var model = new ProductEditViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Stock = product.Stock,
+                ImageUrl = product.ImageUrl,
+                Category = product.Category,
+                IsActive = product.IsActive
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            ProductEditViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Name = model.Name.Trim();
+            product.Description = model.Description?.Trim();
+            product.Price = model.Price;
+            product.Stock = model.Stock;
+            product.ImageUrl = model.ImageUrl?.Trim();
+            product.Category = model.Category?.Trim();
+            product.IsActive = model.IsActive;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Product updated successfully.";
 
             return RedirectToAction(nameof(Index));
         }

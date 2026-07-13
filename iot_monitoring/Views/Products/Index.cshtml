@@ -37,13 +37,14 @@
     {
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th>Name</th>
                         <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Status</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Stock</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
 
@@ -52,10 +53,20 @@
                     {
                         <tr>
                             <td>@product.Name</td>
-                            <td>@(product.Category ?? "-")</td>
-                            <td>฿@product.Price.ToString("N2")</td>
-                            <td>@product.Stock</td>
+
                             <td>
+                                @(product.Category ?? "-")
+                            </td>
+
+                            <td class="text-end">
+                                ฿@product.Price.ToString("N2")
+                            </td>
+
+                            <td class="text-center">
+                                @product.Stock
+                            </td>
+
+                            <td class="text-center">
                                 @if (product.IsActive)
                                 {
                                     <span class="badge bg-success">
@@ -67,6 +78,49 @@
                                     <span class="badge bg-secondary">
                                         Inactive
                                     </span>
+                                }
+                            </td>
+
+                            <td class="text-center text-nowrap">
+                                <a asp-controller="Products"
+                                   asp-action="Edit"
+                                   asp-route-id="@product.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Edit
+                                </a>
+
+                                @if (product.IsActive)
+                                {
+                                    <form asp-controller="Products"
+                                          asp-action="Delete"
+                                          asp-route-id="@product.Id"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to remove this product?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Products"
+                                          asp-action="Restore"
+                                          asp-route-id="@product.Id"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-outline-success btn-sm">
+                                            Restore
+                                        </button>
+                                    </form>
                                 }
                             </td>
                         </tr>
