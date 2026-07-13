@@ -3,6 +3,7 @@ using iot_monitoring.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 
 namespace iot_monitoring.Controllers
@@ -232,6 +233,49 @@ namespace iot_monitoring.Controllers
                 $"{product.Name} added to your cart.";
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task <IActionResult> OrderHistory()
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+            var order = await _context.Orders
+                        .AsNoTracking()
+                        .Where(o => o.UserId == userId)
+                        .OrderByDescending(o => o.CreatedAt)
+                        .ToListAsync();
+            return View(order);
+        }
+        [HttpGet]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            var userIdValue =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Challenge();
+            }
+
+            var order = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o =>
+                    o.Id == id &&
+                    o.UserId == userId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
         }
 
 
