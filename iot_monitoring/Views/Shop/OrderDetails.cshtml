@@ -10,11 +10,8 @@
             <h2 class="mb-1">
                 Order #@Model.Id
             </h2>
-
             <p class="text-muted mb-0">
-                @Model.CreatedAt
-                .ToLocalTime()
-                .ToString("dd/MM/yyyy HH:mm")
+                @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
             </p>
         </div>
 
