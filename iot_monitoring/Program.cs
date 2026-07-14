@@ -22,6 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<StripePaymentService>();
 
 var stripeSecretKey =
     builder.Configuration["Stripe:SecretKey"];
