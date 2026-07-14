@@ -1,3 +1,4 @@
+using Stripe;
 using iot_monitoring.Data;
 using iot_monitoring.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,6 +22,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<PasswordService>();
+
+var stripeSecretKey =
+    builder.Configuration["Stripe:SecretKey"];
+if (string.IsNullOrWhiteSpace(stripeSecretKey))
+{
+    throw new InvalidOperationException(
+        "Stripe SecretKey is not configured");
+}
+
+StripeConfiguration.ApiKey = stripeSecretKey;
 
 var app = builder.Build();
 
