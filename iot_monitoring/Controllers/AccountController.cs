@@ -166,6 +166,7 @@ namespace iot_monitoring.Controllers
 
             return View(model);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(
