@@ -14,6 +14,46 @@
             </p>
         </div>
     </div>
+    <form asp-controller="Users"
+          asp-action="Index"
+          method="get"
+          class="row g-2 mb-4">
+
+        <div class="col-md-4">
+            <label class="form-label">
+                Filter by Role
+            </label>
+
+            <select name="role"
+                    class="form-select"
+                    onchange="this.form.submit()">
+
+                <option value=""
+                        selected="@(string.IsNullOrWhiteSpace(ViewBag.SelectedRole))">
+                    All Roles
+                </option>
+
+                <option value="Admin"
+                        selected="@(ViewBag.SelectedRole == "Admin")">
+                    Admin
+                </option>
+
+                <option value="User"
+                        selected="@(ViewBag.SelectedRole == "User")">
+                    User
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-auto d-flex align-items-end">
+            <a asp-controller="Users"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Clear
+            </a>
+        </div>
+
+    </form>
 
     @if (!Model.Any())
     {
@@ -31,7 +71,7 @@
                         <th>Email</th>
                         <th>Username</th>
                         <th>Role</th>
-                        <th>Status</th>
+                        <th>Last Login</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,16 +100,16 @@
                             </td>
 
                             <td>
-                                @if (user.IsActive)
+                                @if (user.LastLoginAt.HasValue)
                                 {
-                                    <span class="badge bg-success">
-                                        Active
-                                    </span>
+                                    @(user.LastLoginAt.Value
+                                          .ToLocalTime()
+                                          .ToString("dd/MM/yyyy HH:mm"))
                                 }
                                 else
                                 {
                                     <span class="badge bg-danger">
-                                        Inactive
+                                        Never
                                     </span>
                                 }
                             </td>

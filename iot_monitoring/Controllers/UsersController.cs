@@ -14,12 +14,21 @@ namespace iot_monitoring.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? role)
         {
-            var users =await _context.Users
-                .AsTracking()
+            var qurey = _context.Users
+                .AsNoTracking()
+                .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                qurey = qurey.Where(u => u.Role == role);
+            }
+
+            var users = await qurey
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
+
+            ViewBag.SelectedRole = role;
 
             return View(users);
         }

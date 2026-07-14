@@ -54,6 +54,9 @@ namespace iot_monitoring.Controllers
                 ViewBag.ErrorMessage = "Invalid username or password.";
                 return View(model);
             }
+            user.LastLoginAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
 
             var claims = new List<Claim>
             {

@@ -1,4 +1,6 @@
-﻿namespace iot_monitoring.Models
+﻿using System.Globalization;
+
+namespace iot_monitoring.Models
 {
     public class User
     {
@@ -10,6 +12,7 @@
         public string Role { get; set; } = "User";
         public bool IsActive { get; set; } = true;
         public string? ResetPasswordToken { get; set; }
+        public DateTime? LastLoginAt { get; set; }
         public DateTime? ResetPasswordTokenExpiresAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Cart? Cart { get; set; }
