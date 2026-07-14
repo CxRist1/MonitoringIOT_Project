@@ -1,18 +1,27 @@
 ﻿using Stripe;
-using Stripe.Checkout;
 
 namespace iot_monitoring.Services
 {
     public class StripePaymentService
     {
         public async Task<PaymentIntent> CreatePromptPayPaymentAsync(
+            int orderId,
             decimal amount,
-            string orderNumber)
+            string customerEmail)
         {
+            var amountInSatang = decimal.ToInt64(
+                decimal.Round(
+                    amount * 100,
+                    0,
+                    MidpointRounding.AwayFromZero
+                )
+            );
+
             var options = new PaymentIntentCreateOptions
             {
-                Amount = (long)(amount * 100),
+                Amount = amountInSatang,
                 Currency = "thb",
+                ReceiptEmail = customerEmail,
 
                 PaymentMethodTypes = new List<string>
                 {
@@ -21,7 +30,7 @@ namespace iot_monitoring.Services
 
                 Metadata = new Dictionary<string, string>
                 {
-                    { "OrderNumber", orderNumber }
+                    { "OrderId", orderId.ToString() }
                 }
             };
 

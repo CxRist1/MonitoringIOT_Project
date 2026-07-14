@@ -3,7 +3,6 @@ using iot_monitoring.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 
 namespace iot_monitoring.Controllers
@@ -55,7 +54,6 @@ namespace iot_monitoring.Controllers
 
             return View(orders);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPurchase()
@@ -104,10 +102,10 @@ namespace iot_monitoring.Controllers
 
             try
             {
-                var orders = new Order
+                var order = new Order
                 {
                     UserId = userId,
-                    Status = "Completed",
+                    Status = "PendingPayment",
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -116,37 +114,35 @@ namespace iot_monitoring.Controllers
                     var subtotal =
                         cartItem.Product.Price * cartItem.Quantity;
 
-                    orders.OrderItems.Add(new OrderItem
+                    order.OrderItems.Add(new OrderItem
                     {
                         ProductId = cartItem.ProductId,
                         Quantity = cartItem.Quantity,
                         UnitPrice = cartItem.Product.Price,
                         Subtotal = subtotal
                     });
-
-                    cartItem.Product.Stock -= cartItem.Quantity;
                 }
 
-                orders.TotalAmount = orders.OrderItems
+                order.TotalAmount = order.OrderItems
                     .Sum(item => item.Subtotal);
 
-                _context.Orders.Add(orders);
-
-                _context.CartItems.RemoveRange(cart.CartItems);
+                _context.Orders.Add(order);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return RedirectToAction(
-                    nameof(OrderSuccess),
-                    new { orderId = orders.Id });
+                    "Checkout",
+                    "Payment",
+                    new { orderId = order.Id }
+                );
             }
             catch
             {
                 await transaction.RollbackAsync();
 
                 TempData["CartError"] =
-    "Purchase could not be completed. Please try again.";
+                    "Unable to create the order. Please try again.";
 
                 return RedirectToAction(nameof(Cart));
             }
@@ -381,7 +377,6 @@ namespace iot_monitoring.Controllers
             _context.CartItems.Remove(cartItem);
 
             await _context.SaveChangesAsync();
-
             TempData["CartSuccess"] =
                 "Product removed from your cart.";
 
