@@ -114,6 +114,17 @@ namespace iot_monitoring.Controllers
 
             if (payment.Status == "Paid")
             {
+                if (!payment.PaidAt.HasValue)
+                {
+                    payment.PaidAt = DateTime.UtcNow;
+                    payment.TransactionReference ??= paymentIntent.Id;
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation(
+                        "Repaired missing PaidAt for Payment {PaymentId}.",
+                        payment.Id);
+                }
                 return;
             }
 
