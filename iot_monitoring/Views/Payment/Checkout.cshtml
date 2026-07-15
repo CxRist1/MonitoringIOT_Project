@@ -1,44 +1,116 @@
 ﻿@model iot_monitoring.ViewModels.PaymentCheckoutViewModel
 
 @{
-    ViewData["Title"] = "Payment";
+    ViewData["Title"] = "PromptPay Payment";
 }
 
 <div class="container py-5">
-
     <div class="row justify-content-center">
+        <div class="col-lg-6">
 
-        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 text-center">
 
-            <div class="card shadow">
-
-                <div class="card-body text-center">
-
-                    <h2>PromptPay Payment</h2>
+                    <h2 class="mb-3">
+                        PromptPay Payment
+                    </h2>
 
                     <hr />
 
-                    <h5>
+                    <p class="text-muted mb-2">
                         Order #@Model.OrderId
-                    </h5>
+                    </p>
 
-                    <h3 class="text-primary">
+                    <h3 class="text-primary mb-4">
                         ฿@Model.Amount.ToString("N2")
                     </h3>
 
-                    <button class="btn btn-success btn-lg mt-3"
-                            id="payButton">
+                    <div id="payment-message"
+                         class="alert alert-danger d-none"
+                         role="alert">
+                    </div>
 
+                    <div id="loading-message"
+                         class="alert alert-info d-none"
+                         role="status">
+                        Preparing PromptPay QR...
+                    </div>
+
+                    <button id="pay-button"
+                            type="button"
+                            class="btn btn-success btn-lg w-100">
                         Generate PromptPay QR
-
                     </button>
 
-                </div>
+                    <a asp-controller="Shop"
+                       asp-action="OrderHistory"
+                       class="btn btn-outline-secondary w-100 mt-3">
+                        Back to My Orders
+                    </a>
 
+                </div>
             </div>
 
         </div>
-
     </div>
-
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+    const stripe = Stripe('@Model.PublishableKey');
+
+    const clientSecret = '@Model.ClientSecret';
+    const customerEmail = '@Model.CustomerEmail';
+
+    const payButton =
+        document.getElementById('pay-button');
+
+    const paymentMessage =
+        document.getElementById('payment-message');
+
+    const loadingMessage =
+        document.getElementById('loading-message');
+
+    payButton.addEventListener('click', async function () {
+        payButton.disabled = true;
+        loadingMessage.classList.remove('d-none');
+        paymentMessage.classList.add('d-none');
+        paymentMessage.textContent = '';
+
+        try {
+            const result =
+                await stripe.confirmPromptPayPayment(
+                    clientSecret,
+                    {
+                        payment_method: {
+                            billing_details: {
+                                email: customerEmail
+                            }
+                        }
+                    }
+                );
+
+            if (result.error) {
+                paymentMessage.textContent =
+                    result.error.message
+                    ?? 'Unable to generate PromptPay QR.';
+
+                paymentMessage.classList.remove('d-none');
+                payButton.disabled = false;
+            }
+        }
+        catch (error) {
+            console.error(error);
+
+            paymentMessage.textContent =
+                'An unexpected payment error occurred.';
+
+            paymentMessage.classList.remove('d-none');
+            payButton.disabled = false;
+        }
+        finally {
+            loadingMessage.classList.add('d-none');
+        }
+    });
+</script>
