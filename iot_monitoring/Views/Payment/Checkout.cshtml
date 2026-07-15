@@ -87,7 +87,8 @@
                             billing_details: {
                                 email: customerEmail
                             }
-                        }
+                        },
+                        return_url: window.location.origin + '/Shop/OrderHistory'
                     }
                 );
 
@@ -101,9 +102,10 @@
             }
         }
         catch (error) {
-            console.error(error);
+            console.error('Strpie payment error :',error);
 
             paymentMessage.textContent =
+                error?.message
                 'An unexpected payment error occurred.';
 
             paymentMessage.classList.remove('d-none');
