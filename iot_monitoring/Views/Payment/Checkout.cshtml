@@ -1,0 +1,44 @@
+﻿@model iot_monitoring.ViewModels.PaymentCheckoutViewModel
+
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-body text-center">
+
+                    <h2>PromptPay Payment</h2>
+
+                    <hr />
+
+                    <h5>
+                        Order #@Model.OrderId
+                    </h5>
+
+                    <h3 class="text-primary">
+                        ฿@Model.Amount.ToString("N2")
+                    </h3>
+
+                    <button class="btn btn-success btn-lg mt-3"
+                            id="payButton">
+
+                        Generate PromptPay QR
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
