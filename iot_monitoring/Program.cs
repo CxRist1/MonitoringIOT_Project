@@ -24,6 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<StripePaymentService>();
 
+builder.Services.AddHttpClient<
+    ILineMessagingService,
+    LineMessagingService>();
+
 var stripeSecretKey =
     builder.Configuration["Stripe:SecretKey"];
 if (string.IsNullOrWhiteSpace(stripeSecretKey))
