@@ -188,19 +188,24 @@ namespace iot_monitoring.Controllers
                             thailandTimeZone);
 
                     var message =
-                        $"""
-ชำระเงินสำเร็จ
+$"""
+✅ ชำระเงินสำเร็จ
 
 Order: #{payment.OrderId}
 ยอดรวม: ฿{payment.Amount:N2}
 
+👤 ชื่อผู้รับ: {payment.Order.RecipientName}
+📞 เบอร์โทร: {payment.Order.PhoneNumber}
+📍 ที่อยู่จัดส่ง:
+{payment.Order.ShippingAddress}
+
 สถานะ Order: Completed
-สถานะการชำระ : ชำระแล้ว
-ช่องทาง : {payment.Method}
+สถานะการชำระ: ชำระแล้ว
+ช่องทาง: {payment.Method}
 
-เวลา: {paidAtThailand: dd/MM/yyyy HH:mm}
+เวลา: {paidAtThailand:dd/MM/yyyy HH:mm}
 
-พร้อมดำเนินการจัดการจัดส่ง
+พร้อมดำเนินการจัดส่ง 🚚
 """;
                     await _lineMessagingService.SendMessageAsync(message);
                 }

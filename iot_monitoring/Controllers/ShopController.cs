@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using iot_monitoring.ViewModels;
 
 namespace iot_monitoring.Controllers
 {
@@ -64,7 +65,8 @@ namespace iot_monitoring.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmPurchase()
+        public async Task<IActionResult> ConfirmPurchase(
+            ConfirmPurchaseViewModel model)
         {
             var userIdValue =
                 User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -73,7 +75,13 @@ namespace iot_monitoring.Controllers
             {
                 return Challenge();
             }
+            if (!ModelState.IsValid)
+            {
+                TempData["CartError"] =
+                    "Please complete the shipping information.";
 
+                return RedirectToAction(nameof(Cart));
+            }
             var cart = await _context.Carts
                 .Include(c => c.CartItems)
                 .ThenInclude(ci => ci.Product)
@@ -114,7 +122,11 @@ namespace iot_monitoring.Controllers
                 {
                     UserId = userId,
                     Status = "PendingPayment",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+
+                    RecipientName = model.RecipientName.Trim(),
+                    PhoneNumber = model.PhoneNumber.Trim(),
+                    ShippingAddress = model.ShippingAddress.Trim()
                 };
 
                 foreach (var cartItem in cart.CartItems)
