@@ -1,4 +1,5 @@
 ﻿using iot_monitoring.Data;
+using iot_monitoring.Services;
 using iot_monitoring.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,17 @@ namespace iot_monitoring.Controllers
     public class ShopController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ILineMessagingService _lineMessagingService;
+        private readonly ILogger<ShopController> _logger;
 
-        public ShopController(AppDbContext context)
+        public ShopController(
+            AppDbContext context,
+            ILineMessagingService lineMessagingService,
+            ILogger<ShopController> logger)
         {
             _context = context;
+            _lineMessagingService = lineMessagingService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -131,15 +139,53 @@ namespace iot_monitoring.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                try
+                {
+                    var thailandTimeZone =
+                        TimeZoneInfo.FindSystemTimeZoneById(
+                            "SE Asia Standard Time");
+
+                    var createdAtThailand =
+                        TimeZoneInfo.ConvertTimeFromUtc(
+                            order.CreatedAt,
+                            thailandTimeZone);
+
+                    var message =
+        $"""
+🛒 มีคำสั่งซื้อใหม่
+
+Order: #{order.Id}
+ยอดรวม: ฿{order.TotalAmount:N2}
+
+สถานะ Order: PendingPayment
+สถานะการชำระ: ⏳ ยังไม่ได้ชำระเงิน
+
+เวลา: {createdAtThailand:dd/MM/yyyy HH:mm}
+""";
+
+                    await _lineMessagingService.SendMessageAsync(message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Order {OrderId} was created, but LINE notification failed.",
+                        order.Id);
+                }
+
                 return RedirectToAction(
                     "Checkout",
                     "Payment",
-                    new { orderId = order.Id }
-                );
+                    new { orderId = order.Id });
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+
+                _logger.LogError(
+                    ex,
+                    "Failed to create order for User {UserId}.",
+                    userId);
 
                 TempData["CartError"] =
                     "Unable to create the order. Please try again.";
@@ -231,12 +277,12 @@ namespace iot_monitoring.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpGet]
-        public async Task <IActionResult> OrderHistory()
+        public async Task<IActionResult> OrderHistory()
         {
             var userIdValue =
                 User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if(!int.TryParse(userIdValue, out int userId))
+            if (!int.TryParse(userIdValue, out int userId))
             {
                 return Challenge();
             }
