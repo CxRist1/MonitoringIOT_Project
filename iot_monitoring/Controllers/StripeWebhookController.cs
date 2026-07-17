@@ -1,4 +1,5 @@
 ﻿using iot_monitoring.Data;
+using iot_monitoring.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,18 @@ namespace iot_monitoring.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger<StripeWebhookController> _logger;
+        private readonly ILineMessagingService _lineMessagingService;
 
         public StripeWebhookController(
             AppDbContext context,
             IConfiguration configuration,
-            ILogger<StripeWebhookController> logger)
+            ILogger<StripeWebhookController> logger,
+            ILineMessagingService lineMessagingService)
         {
             _context = context;
             _configuration = configuration;
             _logger = logger;
+            _lineMessagingService = lineMessagingService;
         }
 
         [HttpPost]
@@ -168,6 +172,46 @@ namespace iot_monitoring.Controllers
                     "Order {OrderId} completed successfully.",
                     payment.OrderId
                 );
+                try
+                {
+                    var paidAtUtc = payment.PaidAt ?? DateTime.UtcNow;
+
+                    var thailandTimeZone =
+                        TimeZoneInfo.FindSystemTimeZoneById(
+                            "SE Asia Standard Time");
+
+                    var paidAtThailand =
+                        TimeZoneInfo.ConvertTimeFromUtc(
+                            DateTime.SpecifyKind(
+                                paidAtUtc,
+                                DateTimeKind.Utc),
+                            thailandTimeZone);
+
+                    var message =
+                        $"""
+ชำระเงินสำเร็จ
+
+Order: #{payment.OrderId}
+ยอดรวม: ฿{payment.Amount:N2}
+
+สถานะ Order: Completed
+สถานะการชำระ : ชำระแล้ว
+ช่องทาง : {payment.Method}
+
+เวลา: {paidAtThailand: dd/MM/yyyy HH:mm}
+
+พร้อมดำเนินการจัดการจัดส่ง
+""";
+                    await _lineMessagingService.SendMessageAsync(message);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "order {OrderId} completed, but LINE payment notification failed.",
+                        payment.OrderId
+                        );
+                }
             }
             catch (Exception ex)
             {
